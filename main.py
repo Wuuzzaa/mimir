@@ -1,7 +1,5 @@
 import os
 
-from urllib3.exceptions import NewConnectionError
-
 from src.api_manager import APIManager
 from src.jsons_to_sql_db import create_database, process_json_files
 from src.option_scrapper import OptionScrapper
@@ -9,40 +7,6 @@ from data.config import *
 import threading
 import time
 
-def scrape_option_data_singel_thread():
-    option_scrapper = OptionScrapper()
-
-    for symbol in SYMBOLS:
-        try:
-            option_scrapper.scrape_options(symbol)
-        except Exception as e:
-            print("An exception occurred:", e)
-
-def scrape_options_subset(symbols):
-    option_scrapper = OptionScrapper()
-    for symbol in symbols:
-        try:
-            option_scrapper.scrape_options(symbol)
-        except Exception as e:
-            print(f"Error occurred for symbol {symbol}: Exception Type: {type(e).__name__}: {e}")
-
-def scrape_symbols_multi_thread(symbols, num_threads=10):
-    # Calculate the number of symbols each thread will scrape
-    symbols_per_thread = (len(symbols) + num_threads - 1) // num_threads
-
-    # Create and start threads
-    threads = []
-    for i in range(num_threads):
-        start_index = i * symbols_per_thread
-        end_index = min((i + 1) * symbols_per_thread, len(symbols))
-        symbols_subset = symbols[start_index:end_index]
-        thread = threading.Thread(target=scrape_options_subset, args=(symbols_subset,))
-        thread.start()
-        threads.append(thread)
-
-    # Wait for all threads to complete
-    for thread in threads:
-        thread.join()
 
 def get_not_scraped_symbols():
     symbols = []
