@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.css" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+Options Results
+{% endblock %}
+
+{% block content %}
+<h1>Options Data</h1>
+<table id="optionsTable" class="table table-striped" style="width:100%">
+    <thead>
+    <tr>
+        <th colspan="1"></th> <!-- Empty subtable header -->
+        <th colspan="5" style="text-align: center;">Spread</th>
+        <th colspan="8" style="text-align: center;">Short Option</th>
+        <th colspan="8" style="text-align: center;">Long Option</th>
+    </tr>
+    <tr>
+        <th>Symbol</th>
+
+        <!-- Spread -->
+        <th>Max Profit</th>
+        <th>BPR</th>
+        <th>Profit/Risk</th>
+        <th>Theta</th>
+        <th>JMS</th>
+
+        <!-- Short -->
+        <th>Strike</th>
+        <th>Last Price</th>
+        <th>Delta</th>
+        <th>Vega</th>
+        <th>Theta</th>
+        <th>Implied Volatility</th>
+        <th>Option Type</th>
+        <th>Expiration Date</th>
+
+        <!-- Long -->
+        <th>Strike</th>
+        <th>Last Price</th>
+        <th>Delta</th>
+        <th>Vega</th>
+        <th>Theta</th>
+        <th>Implied Volatility</th>
+        <th>Option Type</th>
+        <th>Expiration Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in table_data %}
+    <tr>
+        <td>{{ row['Symbol'] }}</td>
+
+        <!-- Spread -->
+        <td>{{ row['Max Profit'] }}</td>
+        <td>{{ row['BPR'] }}</td>
+        <td>{{ row['Profit/Risk'] }}</td>
+        <td>{{ row['Spread Theta'] }}</td>
+        <td>{{ row['JMS'] }}</td>
+
+        <!-- Short -->
+        <td>{{ row['Short Strike'] }}</td>
+        <td>{{ row['Short Last Price'] }}</td>
+        <td>{{ row['Short Delta'] }}</td>
+        <td>{{ row['Short Vega'] }}</td>
+        <td>{{ row['Short Theta'] }}</td>
+        <td>{{ row['Short Implied Volatility'] }}</td>
+        <td>{{ row['Short Option Type'] }}</td>
+        <td>{{ row['Short Expiration Date'] }}</td>
+        <!-- Long -->
+        <td>{{ row['Long Strike'] }}</td>
+        <td>{{ row['Long Last Price'] }}</td>
+        <td>{{ row['Long Delta'] }}</td>
+        <td>{{ row['Long Vega'] }}</td>
+        <td>{{ row['Long Theta'] }}</td>
+        <td>{{ row['Long Implied Volatility'] }}</td>
+        <td>{{ row['Long Option Type'] }}</td>
+        <td>{{ row['Long Expiration Date'] }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script  src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script  src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script  src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
+<script  src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#optionsTable').DataTable({
+            "columnDefs": [
+                { "type": "num", "targets": [1, 2, 3, 4, 5] }, // Spread columns
+                { "type": "num", "targets": [6, 7, 8, 9, 10, 11, 12, 13] }, // Short columns
+                { "type": "num", "targets": [14, 15, 16, 17, 18, 19, 20, 21] } // Long columns
+            ]
+        });
+    });
+</script>
+{% endblock %}
