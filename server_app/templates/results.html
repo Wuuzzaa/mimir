@@ -10,14 +10,14 @@ Options Results
 {% endblock %}
 
 {% block content %}
-<h1>Options Data</h1>
+<h1>{{ h1_text }}</h1>
 <table id="optionsTable" class="table table-striped" style="width:100%">
     <thead>
     <tr>
         <th colspan="1"></th> <!-- Empty subtable header -->
         <th colspan="6" style="text-align: center;">Spread</th>
-        <th colspan="8" style="text-align: center;">Short Option</th>
-        <th colspan="8" style="text-align: center;">Long Option</th>
+        <th colspan="6" style="text-align: center;">Short Option</th>
+        <th colspan="6" style="text-align: center;">Long Option</th>
     </tr>
     <tr>
         <th>Symbol</th>
@@ -37,8 +37,6 @@ Options Results
         <th>Vega</th>
         <th>Theta</th>
         <th>Implied Volatility</th>
-        <th>Option Type</th>
-        <th>Expiration Date</th>
 
         <!-- Long -->
         <th>Strike</th>
@@ -47,8 +45,6 @@ Options Results
         <th>Vega</th>
         <th>Theta</th>
         <th>Implied Volatility</th>
-        <th>Option Type</th>
-        <th>Expiration Date</th>
     </tr>
     </thead>
     <tbody>
@@ -71,8 +67,7 @@ Options Results
         <td>{{ row['Short Vega'] }}</td>
         <td>{{ row['Short Theta'] }}</td>
         <td>{{ row['Short Implied Volatility'] }}</td>
-        <td>{{ row['Short Option Type'] }}</td>
-        <td>{{ row['Short Expiration Date'] }}</td>
+
         <!-- Long -->
         <td>{{ row['Long Strike'] }}</td>
         <td>{{ row['Long Last Price'] }}</td>
@@ -80,8 +75,6 @@ Options Results
         <td>{{ row['Long Vega'] }}</td>
         <td>{{ row['Long Theta'] }}</td>
         <td>{{ row['Long Implied Volatility'] }}</td>
-        <td>{{ row['Long Option Type'] }}</td>
-        <td>{{ row['Long Expiration Date'] }}</td>
     </tr>
     {% endfor %}
     </tbody>
@@ -97,9 +90,9 @@ Options Results
     $(document).ready(function () {
         $('#optionsTable').DataTable({
             "columnDefs": [
-                { "type": "num", "targets": [1, 2, 3, 4, 5] }, // Spread columns
-                { "type": "num", "targets": [6, 7, 8, 9, 10, 11, 12, 13] }, // Short columns
-                { "type": "num", "targets": [14, 15, 16, 17, 18, 19, 20, 21] } // Long columns
+                { "type": "num", "targets": [1, 2, 3, 4, 5, 6] }, // Spread columns
+                { "type": "num", "targets": [7, 8, 9, 10, 11, 12] }, // Short columns
+                { "type": "num", "targets": [13, 14, 15, 16, 17, 18] } // Long columns
             ]
         });
     });
