@@ -15,7 +15,7 @@ Options Results
     <thead>
     <tr>
         <th colspan="1"></th> <!-- Empty subtable header -->
-        <th colspan="5" style="text-align: center;">Spread</th>
+        <th colspan="6" style="text-align: center;">Spread</th>
         <th colspan="8" style="text-align: center;">Short Option</th>
         <th colspan="8" style="text-align: center;">Long Option</th>
     </tr>
@@ -28,6 +28,7 @@ Options Results
         <th>Profit/Risk</th>
         <th>Theta</th>
         <th>JMS</th>
+        <th>JMS Kelly criterion</th>
 
         <!-- Short -->
         <th>Strike</th>
@@ -61,6 +62,7 @@ Options Results
         <td>{{ row['Profit/Risk'] }}</td>
         <td>{{ row['Spread Theta'] }}</td>
         <td>{{ row['JMS'] }}</td>
+        <td>{{ row['JMS Kelly'] }}</td>
 
         <!-- Short -->
         <td>{{ row['Short Strike'] }}</td>
