@@ -70,7 +70,16 @@ def _get_put_spread_short_options(delta, expiration_date, option_type):
 
 
 def _get_put_spread_long_option(symbol, expiration_date, option_type, spread_width, short_strike):
-    query = """
+    # Construct the appropriate SQL condition based on option_type
+    if option_type == "P":
+        sql_where_strike_condition = "Strike <= :short_strike_param - :spread_width_param"
+        sql_order_by = "DESC"
+    else:  # option_type == "C"
+        sql_where_strike_condition = "Strike >= :short_strike_param + :spread_width_param"
+        sql_order_by = "ASC"
+
+
+    query = f"""
     SELECT 
         symbols.symbol, 
         options.strike, 
@@ -89,8 +98,8 @@ def _get_put_spread_long_option(symbol, expiration_date, option_type, spread_wid
         symbol = :symbol_param AND
         option_type = :option_type_param AND
         expiration_date = :expiration_date_param AND
-        Strike <= :short_strike_param - :spread_width_param
-    ORDER by strike DESC
+        {sql_where_strike_condition}
+    ORDER by strike {sql_order_by}
     Limit 1
     """
 
