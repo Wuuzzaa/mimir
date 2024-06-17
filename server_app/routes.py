@@ -23,9 +23,13 @@ def results():
     expiration_date = request.form['expiration_date'].replace('-', '')
     spread_width = float(request.form['spread_width'])
 
-    if spread_type == "Call Credit Spread":
-        raise Exception("Not implemented yet")
+    if spread_type == "call_credit_spread":
+        option_type = "C"
+        table_data = get_put_spread_options(delta, expiration_date, option_type, spread_width)
 
-    option_type = "P"
-    table_data = get_put_spread_options(delta, expiration_date, option_type, spread_width)
+    elif spread_type == "put_credit_spread":
+        option_type = "P"
+        table_data = get_put_spread_options(delta, expiration_date, option_type, spread_width)
+    else:
+        raise ValueError(f"Unknown spread type: {spread_type}")
     return render_template('results.html', table_data=table_data)
