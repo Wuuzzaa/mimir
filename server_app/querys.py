@@ -72,11 +72,14 @@ def _get_put_spread_short_options(delta, expiration_date, option_type):
 def _get_put_spread_long_option(symbol, expiration_date, option_type, spread_width, short_strike):
     # Construct the appropriate SQL condition based on option_type
     if option_type == "P":
-        sql_where_strike_condition = "Strike <= :short_strike_param - :spread_width_param"
+        sql_where_strike_condition = f"Strike <= {short_strike} - {spread_width}"
         sql_order_by = "DESC"
-    else:  # option_type == "C"
-        sql_where_strike_condition = "Strike >= :short_strike_param + :spread_width_param"
+    elif option_type == "C":
+        sql_where_strike_condition = f"Strike >= {short_strike} + {spread_width}"
         sql_order_by = "ASC"
+
+    else:
+        raise ValueError("Option type must be either P or C")
 
 
     query = f"""
@@ -95,23 +98,15 @@ def _get_put_spread_long_option(symbol, expiration_date, option_type, spread_wid
     JOIN 
         options ON symbols.id = options.symbol_id
     WHERE
-        symbol = :symbol_param AND
-        option_type = :option_type_param AND
-        expiration_date = :expiration_date_param AND
+        symbol = "{symbol}" AND
+        option_type = "{option_type}" AND
+        expiration_date = "{expiration_date}" AND
         {sql_where_strike_condition}
     ORDER by strike {sql_order_by}
     Limit 1
     """
 
-    params = {
-        'symbol_param': symbol,
-        'expiration_date_param': expiration_date,
-        "option_type_param": option_type,
-        "spread_width_param": spread_width,
-        "short_strike_param": short_strike
-    }
-
-    result = execute_query(query, params)
+    result = execute_query(query)
     return result
 
 def get_put_spread_options(delta, expiration_date, option_type, spread_width):
