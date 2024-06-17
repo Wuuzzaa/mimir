@@ -1,0 +1,27 @@
+
+/* Add vertical borders */
+#optionsTable th,
+#optionsTable td {
+    border-right: 1px solid #ddd;
+}
+
+/* Remove the border from the last column */
+#optionsTable th:last-child,
+#optionsTable td:last-child {
+    border-right: none;
+}
+
+/* Spread columns background */
+#optionsTable .spread-col {
+    background-color: #f9f9f9;
+}
+
+/* Short Option columns background */
+#optionsTable .short-col {
+    background-color: #e9f7f9;
+}
+
+/* Long Option columns background */
+#optionsTable .long-col {
+    background-color: #f1f9e9;
+}
