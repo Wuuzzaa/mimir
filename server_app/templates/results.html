@@ -3,6 +3,34 @@
 {% block head %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.css" rel="stylesheet">
+<style>
+    /* Add vertical borders */
+    #optionsTable th,
+    #optionsTable td {
+        border-right: 1px solid #ddd;
+    }
+
+    /* Remove the border from the last column */
+    #optionsTable th:last-child,
+    #optionsTable td:last-child {
+        border-right: none;
+    }
+
+    /* Spread columns background */
+    #optionsTable .spread-col {
+        background-color: #f9f9f9;
+    }
+
+    /* Short Option columns background */
+    #optionsTable .short-col {
+        background-color: #e9f7f9;
+    }
+
+    /* Long Option columns background */
+    #optionsTable .long-col {
+        background-color: #f1f9e9;
+    }
+</style>
 {% endblock %}
 
 {% block title %}
@@ -15,36 +43,36 @@ Options Results
     <thead>
     <tr>
         <th colspan="1"></th> <!-- Empty subtable header -->
-        <th colspan="6" style="text-align: center;">Spread</th>
-        <th colspan="6" style="text-align: center;">Short Option</th>
-        <th colspan="6" style="text-align: center;">Long Option</th>
+        <th colspan="6" class="spread-col" style="text-align: center;">Spread</th>
+        <th colspan="6" class="short-col" style="text-align: center;">Short Option</th>
+        <th colspan="6" class="long-col" style="text-align: center;">Long Option</th>
     </tr>
     <tr>
         <th>Symbol</th>
 
         <!-- Spread -->
-        <th>Max Profit</th>
-        <th>BPR</th>
-        <th>Profit/Risk</th>
-        <th>Theta</th>
-        <th>JMS</th>
-        <th>JMS Kelly criterion</th>
+        <th class="spread-col">Max Profit</th>
+        <th class="spread-col">BPR</th>
+        <th class="spread-col">Profit/Risk</th>
+        <th class="spread-col">Theta</th>
+        <th class="spread-col">JMS</th>
+        <th class="spread-col">JMS Kelly criterion</th>
 
         <!-- Short -->
-        <th>Strike</th>
-        <th>Last Price</th>
-        <th>Delta</th>
-        <th>Vega</th>
-        <th>Theta</th>
-        <th>Implied Volatility</th>
+        <th class="short-col">Strike</th>
+        <th class="short-col">Last Price</th>
+        <th class="short-col">Delta</th>
+        <th class="short-col">Vega</th>
+        <th class="short-col">Theta</th>
+        <th class="short-col">Implied Volatility</th>
 
         <!-- Long -->
-        <th>Strike</th>
-        <th>Last Price</th>
-        <th>Delta</th>
-        <th>Vega</th>
-        <th>Theta</th>
-        <th>Implied Volatility</th>
+        <th class="long-col">Strike</th>
+        <th class="long-col">Last Price</th>
+        <th class="long-col">Delta</th>
+        <th class="long-col">Vega</th>
+        <th class="long-col">Theta</th>
+        <th class="long-col">Implied Volatility</th>
     </tr>
     </thead>
     <tbody>
@@ -53,28 +81,28 @@ Options Results
         <td>{{ row['Symbol'] }}</td>
 
         <!-- Spread -->
-        <td>{{ row['Max Profit'] }}</td>
-        <td>{{ row['BPR'] }}</td>
-        <td>{{ row['Profit/Risk'] }}</td>
-        <td>{{ row['Spread Theta'] }}</td>
-        <td>{{ row['JMS'] }}</td>
-        <td>{{ row['JMS Kelly'] }}</td>
+        <td class="spread-col">{{ row['Max Profit'] }}</td>
+        <td class="spread-col">{{ row['BPR'] }}</td>
+        <td class="spread-col">{{ row['Profit/Risk'] }}</td>
+        <td class="spread-col">{{ row['Spread Theta'] }}</td>
+        <td class="spread-col">{{ row['JMS'] }}</td>
+        <td class="spread-col">{{ row['JMS Kelly'] }}</td>
 
         <!-- Short -->
-        <td>{{ row['Short Strike'] }}</td>
-        <td>{{ row['Short Last Price'] }}</td>
-        <td>{{ row['Short Delta'] }}</td>
-        <td>{{ row['Short Vega'] }}</td>
-        <td>{{ row['Short Theta'] }}</td>
-        <td>{{ row['Short Implied Volatility'] }}</td>
+        <td class="short-col">{{ row['Short Strike'] }}</td>
+        <td class="short-col">{{ row['Short Last Price'] }}</td>
+        <td class="short-col">{{ row['Short Delta'] }}</td>
+        <td class="short-col">{{ row['Short Vega'] }}</td>
+        <td class="short-col">{{ row['Short Theta'] }}</td>
+        <td class="short-col">{{ row['Short Implied Volatility'] }}</td>
 
         <!-- Long -->
-        <td>{{ row['Long Strike'] }}</td>
-        <td>{{ row['Long Last Price'] }}</td>
-        <td>{{ row['Long Delta'] }}</td>
-        <td>{{ row['Long Vega'] }}</td>
-        <td>{{ row['Long Theta'] }}</td>
-        <td>{{ row['Long Implied Volatility'] }}</td>
+        <td class="long-col">{{ row['Long Strike'] }}</td>
+        <td class="long-col">{{ row['Long Last Price'] }}</td>
+        <td class="long-col">{{ row['Long Delta'] }}</td>
+        <td class="long-col">{{ row['Long Vega'] }}</td>
+        <td class="long-col">{{ row['Long Theta'] }}</td>
+        <td class="long-col">{{ row['Long Implied Volatility'] }}</td>
     </tr>
     {% endfor %}
     </tbody>
@@ -82,10 +110,10 @@ Options Results
 {% endblock %}
 
 {% block scripts %}
-<script  src="https://code.jquery.com/jquery-3.7.1.js"></script>
-<script  src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script  src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
-<script  src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.js"></script>
 <script>
     $(document).ready(function () {
         $('#optionsTable').DataTable({
