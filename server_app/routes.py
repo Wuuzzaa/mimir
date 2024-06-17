@@ -25,11 +25,13 @@ def results():
 
     if spread_type == "call_credit_spread":
         option_type = "C"
+        h1_text = "Call Credit Spread Data"
         table_data = get_put_spread_options(delta, expiration_date, option_type, spread_width)
 
     elif spread_type == "put_credit_spread":
         option_type = "P"
+        h1_text = "Put Credit Spread Data"
         table_data = get_put_spread_options(delta, expiration_date, option_type, spread_width)
     else:
         raise ValueError(f"Unknown spread type: {spread_type}")
-    return render_template('results.html', table_data=table_data)
+    return render_template('results.html', table_data=table_data, h1_text=h1_text)
