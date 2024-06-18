@@ -1,7 +1,8 @@
 import sqlite3
 import logging
 from data.config import *
-from .option_calculation import *
+
+from server_app.option_calculation import put_spread_calculations
 
 DATABASE = f"{DATABASE_FOLDER}/{DATABASE_FILE_NAME}"
 

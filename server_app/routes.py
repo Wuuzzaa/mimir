@@ -2,6 +2,8 @@ from werkzeug.exceptions import MethodNotAllowed
 
 from server_app import app
 from flask import render_template, Blueprint, request, render_template_string
+
+from .option_calculation import get_iron_condor_data
 from .querys import *
 from .util import get_date_third_friday_of_next_month
 
@@ -32,6 +34,16 @@ def results():
         option_type = "P"
         h1_text = "Put Credit Spread Data"
         table_data = get_put_spread_options(delta, expiration_date, option_type, spread_width)
+
+    elif spread_type == "iron_condor":
+        h1_text = "Iron Condor Data"
+        # get call and put spreads
+        call_data = get_put_spread_options(delta=delta, expiration_date=expiration_date, option_type="C", spread_width=spread_width)
+        put_data = get_put_spread_options(delta=delta, expiration_date=expiration_date, option_type="P",  spread_width=spread_width)
+
+        table_data = get_iron_condor_data(call_data, put_data)
+        return render_template('iron_condor_results.html', table_data=table_data, h1_text=h1_text)
+
     else:
         raise ValueError(f"Unknown spread type: {spread_type}")
-    return render_template('results.html', table_data=table_data, h1_text=h1_text)
+    return render_template('spread_results.html', table_data=table_data, h1_text=h1_text)

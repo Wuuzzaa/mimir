@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.css" rel="stylesheet">
+<link href="{{ url_for('static', filename='table_styles.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+Options Results
+{% endblock %}
+
+{% block content %}
+<h1>{{ h1_text }}</h1>
+<table id="optionsTable" class="table table-striped" style="width:100%">
+    <thead>
+    <tr>
+        <th colspan="1"></th> <!-- Empty subtable header -->
+        <th colspan="6" class="spread-col" style="text-align: center;">Iron Condor</th>
+        <th colspan="2" class="short-col" style="text-align: center;">Put Spread</th>
+        <th colspan="2" class="long-col" style="text-align: center;">Call Spread</th>
+    </tr>
+    <tr>
+        <th>Symbol</th>
+
+        <!-- Iron Condor -->
+        <th class="spread-col">Max Profit</th>
+        <th class="spread-col">BPR</th>
+        <th class="spread-col">Profit/Risk</th>
+        <th class="spread-col">Theta</th>
+        <th class="spread-col">JMS</th>
+        <th class="spread-col">JMS Kelly criterion</th>
+
+        <!-- Put Spread -->
+        <th class="short-col">Short Strike</th>
+        <th class="short-col">Long Strike</th>
+
+        <!-- Call Spread -->
+        <th class="long-col">Short Strike</th>
+        <th class="long-col">Long Strike</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in table_data %}
+    <tr>
+        <td>{{ row['Symbol'] }}</td>
+
+        <!-- Iron Condor -->
+        <td class="spread-col">{{ row['Max Profit'] }}</td>
+        <td class="spread-col">{{ row['BPR'] }}</td>
+        <td class="spread-col">{{ row['Profit/Risk'] }}</td>
+        <td class="spread-col">{{ row['Theta'] }}</td>
+        <td class="spread-col">{{ row['JMS'] }}</td>
+        <td class="spread-col">{{ row['JMS Kelly'] }}</td>
+
+        <!-- Put Spread -->
+        <td class="short-col">{{ row['Put Spread Short Strike'] }}</td>
+        <td class="short-col">{{ row['Put Spread Long Strike'] }}</td>
+
+        <!-- Call Spread -->
+        <td class="long-col">{{ row['Call Spread Short Strike'] }}</td>
+        <td class="long-col">{{ row['Call Spread Long Strike'] }}</td>
+
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#optionsTable').DataTable({
+            "columnDefs": [
+                { "type": "num", "targets": [1, 2, 3, 4, 5, 6] }, // Iron Condor columns
+                { "type": "num", "targets": [7, 8] }, // Put Spread columns
+                { "type": "num", "targets": [9, 10] } // Call Spread columns
+            ]
+        });
+    });
+</script>
+{% endblock %}
