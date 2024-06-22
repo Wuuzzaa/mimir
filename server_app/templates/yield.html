@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block head %}
+    {{ super() }}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function calculateYield() {
@@ -32,33 +33,42 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Yield Calculator</h1>
+    <h1 class="mb-4">Yield Calculator</h1>
     <form>
-        <label for="init_option_premium">Initial Option Premium:</label>
-        <input type="number" id="init_option_premium" name="init_option_premium" required min="0" value="80"><br>
-
-        <label for="max_loss_via_stoploss">Max Loss via Stoploss:</label>
-        <input type="number" id="max_loss_via_stoploss" name="max_loss_via_stoploss" required min="0" value="160"><br>
-
-        <label for="delta_short_option">Delta Short Option:</label>
-        <input type="number" id="delta_short_option" name="delta_short_option" required min="0" value="0.2"><br>
-
-        <label for="bpr">Buying Power Reduction (BPR):</label>
-        <input type="number" id="bpr" name="bpr" required min="0" value="420"><br>
-
-        <label for="profit">Profit:</label>
-        <input type="number" id="profit" name="profit"  required min="0" value="35"><br>
-
-        <label for="days_trade_open">Days Trade Open:</label>
-        <input type="number" id="days_trade_open" name="days_trade_open" required min="0" value="15"><br>
-
-        <label for="dte">Days to Expiration (DTE):</label>
-        <input type="number" id="dte" name="dte" required min="0" value="40"><br>
-
-        <label for="fees">Total fees position opening :</label>
-        <input type="number" id="fees" name="fees" required min="0" value="7"><br>
+        <div class="mb-3">
+            <label for="init_option_premium" class="form-label">Initial Option Premium:</label>
+            <input type="number" class="form-control" id="init_option_premium" name="init_option_premium" required min="0" value="80">
+        </div>
+        <div class="mb-3">
+            <label for="max_loss_via_stoploss" class="form-label">Max Loss via Stoploss:</label>
+            <input type="number" class="form-control" id="max_loss_via_stoploss" name="max_loss_via_stoploss" required min="0" value="160">
+        </div>
+        <div class="mb-3">
+            <label for="delta_short_option" class="form-label">Delta Short Option:</label>
+            <input type="number" class="form-control" id="delta_short_option" name="delta_short_option" required min="0" value="0.2" step="0.01">
+        </div>
+        <div class="mb-3">
+            <label for="bpr" class="form-label">Buying Power Reduction (BPR):</label>
+            <input type="number" class="form-control" id="bpr" name="bpr" required min="0" value="420">
+        </div>
+        <div class="mb-3">
+            <label for="profit" class="form-label">Profit:</label>
+            <input type="number" class="form-control" id="profit" name="profit" required min="0" value="35">
+        </div>
+        <div class="mb-3">
+            <label for="days_trade_open" class="form-label">Days Trade Open:</label>
+            <input type="number" class="form-control" id="days_trade_open" name="days_trade_open" required min="0" value="15">
+        </div>
+        <div class="mb-3">
+            <label for="dte" class="form-label">Days to Expiration (DTE):</label>
+            <input type="number" class="form-control" id="dte" name="dte" required min="0" value="40">
+        </div>
+        <div class="mb-3">
+            <label for="fees" class="form-label">Total Fees for Position Opening:</label>
+            <input type="number" class="form-control" id="fees" name="fees" required min="0" value="7">
+        </div>
     </form>
-    <h2>Results</h2>
-    <p>Annualized Yield Now: <span id="annualized_yield_now">0%</span></p>
-    <p>Annualized Yield at Expiration: <span id="annualized_yield_expiration">0%</span></p>
+    <h2 class="mt-4">Results</h2>
+    <p class="fs-5">Annualized Yield Now: <span id="annualized_yield_now">0%</span></p>
+    <p class="fs-5">Annualized Yield at Expiration: <span id="annualized_yield_expiration">0%</span></p>
 {% endblock %}
