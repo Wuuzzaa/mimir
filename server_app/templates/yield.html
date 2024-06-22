@@ -1,8 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Yield Calculator</title>
+{% extends "base.html" %}
+{% block head %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function calculateYield() {
@@ -32,8 +29,9 @@
             calculateYield(); // Initial calculation with default values
         });
     </script>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <h1>Yield Calculator</h1>
     <form>
         <label for="init_option_premium">Initial Option Premium:</label>
@@ -63,5 +61,4 @@
     <h2>Results</h2>
     <p>Annualized Yield Now: <span id="annualized_yield_now">0%</span></p>
     <p>Annualized Yield at Expiration: <span id="annualized_yield_expiration">0%</span></p>
-</body>
-</html>
+{% endblock %}
