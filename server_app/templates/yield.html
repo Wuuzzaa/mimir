@@ -37,28 +37,28 @@
     <h1>Yield Calculator</h1>
     <form>
         <label for="init_option_premium">Initial Option Premium:</label>
-        <input type="number" id="init_option_premium" name="init_option_premium" step="0.01" required><br>
+        <input type="number" id="init_option_premium" name="init_option_premium" required min="0" value="80"><br>
 
         <label for="max_loss_via_stoploss">Max Loss via Stoploss:</label>
-        <input type="number" id="max_loss_via_stoploss" name="max_loss_via_stoploss" step="0.01" required><br>
+        <input type="number" id="max_loss_via_stoploss" name="max_loss_via_stoploss" required min="0" value="160"><br>
 
         <label for="delta_short_option">Delta Short Option:</label>
-        <input type="number" id="delta_short_option" name="delta_short_option" step="0.01" required><br>
+        <input type="number" id="delta_short_option" name="delta_short_option" required min="0" value="0.2"><br>
 
         <label for="bpr">Buying Power Reduction (BPR):</label>
-        <input type="number" id="bpr" name="bpr" step="0.01" required><br>
+        <input type="number" id="bpr" name="bpr" required min="0" value="420"><br>
 
         <label for="profit">Profit:</label>
-        <input type="number" id="profit" name="profit" step="0.01" required><br>
+        <input type="number" id="profit" name="profit"  required min="0" value="35"><br>
 
         <label for="days_trade_open">Days Trade Open:</label>
-        <input type="number" id="days_trade_open" name="days_trade_open" required><br>
+        <input type="number" id="days_trade_open" name="days_trade_open" required min="0" value="15"><br>
 
         <label for="dte">Days to Expiration (DTE):</label>
-        <input type="number" id="dte" name="dte" required><br>
+        <input type="number" id="dte" name="dte" required min="0" value="40"><br>
 
-        <label for="fees">Fees:</label>
-        <input type="number" id="fees" name="fees" step="0.01" required><br>
+        <label for="fees">Total fees position opening :</label>
+        <input type="number" id="fees" name="fees" required min="0" value="7"><br>
     </form>
     <h2>Results</h2>
     <p>Annualized Yield Now: <span id="annualized_yield_now">0%</span></p>

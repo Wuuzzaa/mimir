@@ -57,19 +57,27 @@ def _yield():
 @app.route('/calc_yield', methods=['POST'])
 def calculate():
     data = request.get_json()
-    init_option_premium = float(data['init_option_premium'])
-    max_loss_via_stoploss = float(data['max_loss_via_stoploss'])
-    delta_short_option = float(data['delta_short_option'])
-    bpr = float(data['bpr'])
-    profit = float(data['profit'])
-    days_trade_open = int(data['days_trade_open'])
-    dte = int(data['dte'])
-    fees = float(data['fees'])
+    try:
+        init_option_premium = float(data['init_option_premium'])
+        max_loss_via_stoploss = float(data['max_loss_via_stoploss'])
+        delta_short_option = float(data['delta_short_option'])
+        bpr = float(data['bpr'])
+        profit = float(data['profit'])
+        days_trade_open = int(data['days_trade_open'])
+        dte = int(data['dte'])
+        fees = float(data['fees'])
 
-    annualized_yield_now = calculate_annualized_yield(profit, days_trade_open, bpr, fees * 2) # *2 cause we need closing orders
-    annualized_yield_expiration = calculate_annualized_yield_at_expiration(dte, bpr, init_option_premium, max_loss_via_stoploss, delta_short_option, fees)
 
+        annualized_yield_now = calculate_annualized_yield(profit, days_trade_open, bpr, fees * 2) # *2 cause we need closing orders for short and long option
+        annualized_yield_expiration = calculate_annualized_yield_at_expiration(dte, bpr, init_option_premium, max_loss_via_stoploss, delta_short_option, fees)
+    except Exception as e:
+        return jsonify({
+        'annualized_yield_now': "Insert all values only numbers",
+        'annualized_yield_expiration': "Insert all values only numbers"
+    })
+
+    # * 100 to match the format for the percent
     return jsonify({
-        'annualized_yield_now': annualized_yield_now,
-        'annualized_yield_expiration': annualized_yield_expiration
+        'annualized_yield_now': annualized_yield_now * 100,
+        'annualized_yield_expiration': annualized_yield_expiration * 100
     })
