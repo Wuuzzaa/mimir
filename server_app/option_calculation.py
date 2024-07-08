@@ -34,7 +34,7 @@ def _calculate_iron_condor(call_spread: Dict, put_spread: Dict) -> Dict:
     data["Profit/Risk"] = round(data["Max Profit"] / data["BPR"], 2)
     data["Theta"] = call_spread["Spread Theta"] + put_spread["Spread Theta"]
     data["JMS"] = _calc_JMS(data, is_iron_condor=True)
-    data["JMS Kelly"] =_calc_JMS(data, is_iron_condor=True)
+    data["JMS Kelly"] = _calc_JMS_kelly_criterion(data, is_iron_condor=True)
 
     return data
 
