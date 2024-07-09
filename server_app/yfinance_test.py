@@ -1,3 +1,5 @@
+import os
+
 import yfinance as yf
 import pandas as pd
 import ta
@@ -12,7 +14,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.optimizers import Adam
 import matplotlib.pyplot as plt
-from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from data.config import *
 
 def get_historical_data(ticker, start_date, end_date):
@@ -110,7 +112,9 @@ def lstm_model_predict(
     plt.show()
 
     return predictions
-def hist_gradient_boosting_regressor_model_predict(df, test_size, underlyingname):
+
+
+def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
     # Use all features except 'Close' for prediction
     features = df.columns.drop('Close')
     X = df[features]
@@ -120,7 +124,6 @@ def hist_gradient_boosting_regressor_model_predict(df, test_size, underlyingname
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, shuffle=False)
 
     # train
-    est = HistGradientBoostingRegressor(random_state=42)
     est.fit(X_train, y_train)
 
     # predict
@@ -141,8 +144,11 @@ def hist_gradient_boosting_regressor_model_predict(df, test_size, underlyingname
     valid['Predictions'] = np.nan
     valid['Predictions'].iloc[:len(predictions)] = predictions.reshape(-1)
 
-    modelname = "hist gradient boosting regressor"
-    filename = f"data/plots/{modelname}_{underlyingname}.png"
+    # filename for the plot
+    filename = f"../data/plots/{modelname}/{underlyingname}.png"
+
+    # Create the directory if it does not exist
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
 
     # Plot the results
     plt.figure(figsize=(16, 8))
@@ -177,15 +183,18 @@ if __name__ == '__main__':
     for ticker in SYMBOLS:
         df = get_historical_data(ticker, start_date, end_date)
         df = add_technical_indicators(df)
+
+        # LSTM Model
         #lstm_predictions = lstm_model_predict(df, underlyingname=ticker)
-        hist_gradient_boosting_regressor_predictions = hist_gradient_boosting_regressor_model_predict(df, test_size=50,
-                                                                                                      underlyingname=ticker)
 
-    # one symbol
-    # df = get_historical_data(ticker, start_date, end_date)
-    # df = add_technical_indicators(df)
-    # #lstm_predictions = lstm_model_predict(df, underlyingname=ticker)
-    # hist_gradient_boosting_regressor_predictions = hist_gradient_boosting_regressor_model_predict(df, test_size=50, underlyingname=ticker)
+        # HistGradientBoostingRegressor
+        est = HistGradientBoostingRegressor(random_state=42)
+        modelname = "HistGradientBoostingRegressor"
+        hist_gradient_boosting_regressor_predictions = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
 
+        # RandomForestRegressor
+        est = RandomForestRegressor(random_state=42, n_jobs=-1)
+        modelname = "RandomForestRegressor"
+        random_forest_regressor_predictions = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
 
     print("done")
