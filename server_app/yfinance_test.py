@@ -1,12 +1,10 @@
 import os
-
 import yfinance as yf
 import pandas as pd
 import ta
 import numpy as np
 import tensorflow as tf
 import random
-
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error
@@ -95,7 +93,10 @@ def lstm_model_predict(
     valid['Predictions'].iloc[:len(predictions)] = predictions.reshape(-1)
 
     modelname = "LSTM"
-    filename = f"data/plots/{modelname}_{underlyingname}.png"
+    filename = f"../data/plots/{modelname}/{underlyingname}.png"
+
+    # Create the directory if it does not exist
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
 
     # Plot the results
     plt.figure(figsize=(16, 8))
@@ -111,8 +112,7 @@ def lstm_model_predict(
     plt.savefig(filename)
     plt.show()
 
-    return predictions
-
+    return mse, mae
 
 def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
     # Use all features except 'Close' for prediction
@@ -164,13 +164,12 @@ def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
     plt.savefig(filename)
     plt.show()
 
-    return predictions
+    return mse, mae
 
 def set_seeds(seed=42):
     np.random.seed(seed)
     random.seed(seed)
     tf.random.set_seed(seed)
-
 
 if __name__ == '__main__':
     ticker = 'MSFT'
@@ -179,22 +178,35 @@ if __name__ == '__main__':
 
     set_seeds(42)
 
+    # DataFrame to store results
+    results_df = pd.DataFrame(columns=['Ticker', 'Model', 'MSE', 'MAE'])
+
     # all symbols
     for ticker in SYMBOLS:
+        print(f"Ticker: {ticker}")
+
         df = get_historical_data(ticker, start_date, end_date)
         df = add_technical_indicators(df)
 
         # LSTM Model
-        #lstm_predictions = lstm_model_predict(df, underlyingname=ticker)
+        mse, mae = lstm_model_predict(df, underlyingname=ticker)
+        results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': ['LSTM'], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
 
         # HistGradientBoostingRegressor
         est = HistGradientBoostingRegressor(random_state=42)
         modelname = "HistGradientBoostingRegressor"
-        hist_gradient_boosting_regressor_predictions = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
+        mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
+        results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
 
         # RandomForestRegressor
         est = RandomForestRegressor(random_state=42, n_jobs=-1)
         modelname = "RandomForestRegressor"
-        random_forest_regressor_predictions = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
+        mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
+        results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
+
+    # Save results to disk
+    results_filename = "../data/model_performance_results.csv"
+    os.makedirs(os.path.dirname(results_filename), exist_ok=True)
+    results_df.to_csv(results_filename, index=False)
 
     print("done")
