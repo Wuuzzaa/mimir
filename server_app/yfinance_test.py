@@ -14,6 +14,7 @@ from tensorflow.keras.optimizers import Adam
 import matplotlib.pyplot as plt
 from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from data.config import *
+from sklearn.linear_model import LinearRegression
 
 def get_historical_data(ticker, start_date, end_date):
     df = yf.download(ticker, start=start_date, end=end_date)
@@ -30,8 +31,8 @@ def lstm_model_predict(
         batch_size=32,
         epochs=50
 ):
-    # Use all features except 'Close' for prediction
-    features = df.columns.drop('Close')
+    # Use all features except 'Close' and Adj Close for prediction
+    features = df.columns.drop(['Close', "Adj Close"])
     X = df[features]
 
     # Normalize the data
@@ -115,8 +116,10 @@ def lstm_model_predict(
     return mse, mae
 
 def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
-    # Use all features except 'Close' for prediction
-    features = df.columns.drop('Close')
+    # 'High', 'Low', 'Close', "Adj Close" are unknown at forecasting
+    # 'others_cr' seems to represent more or less the Close Price
+    # "Close" is predicted
+    features = df.columns.drop(['High', 'Low', 'Close', "Adj Close", "others_cr"])
     X = df[features]
     y = df['Close']
 
@@ -189,8 +192,8 @@ if __name__ == '__main__':
         df = add_technical_indicators(df)
 
         # LSTM Model
-        mse, mae = lstm_model_predict(df, underlyingname=ticker)
-        results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': ['LSTM'], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
+        # mse, mae = lstm_model_predict(df, underlyingname=ticker)
+        # results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': ['LSTM'], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
 
         # HistGradientBoostingRegressor
         est = HistGradientBoostingRegressor(random_state=42)
@@ -204,9 +207,17 @@ if __name__ == '__main__':
         mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
         results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
 
-    # Save results to disk
-    results_filename = "../data/model_performance_results.csv"
-    os.makedirs(os.path.dirname(results_filename), exist_ok=True)
-    results_df.to_csv(results_filename, index=False)
+        # LinearRegression
+        est = LinearRegression(n_jobs=-1)
+        modelname = "LinearRegression"
+        mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
+        results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
+
+
+        # Save results to disk
+        results_filename = "../data/model_performance_results.csv"
+        os.makedirs(os.path.dirname(results_filename), exist_ok=True)
+        print(f"store results in {results_filename} after ticker symbol: {ticker}")
+        results_df.to_csv(results_filename, index=False)
 
     print("done")
