@@ -23,97 +23,97 @@ def get_historical_data(ticker, start_date, end_date):
 def add_technical_indicators(df: pd.DataFrame):
     return ta.add_all_ta_features(df, open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
 
-def lstm_model_predict(
-        df,
-        underlyingname,
-        sequence_length=40,
-        test_size=40,
-        batch_size=32,
-        epochs=50
-):
-    # Use all features except 'Close' and Adj Close for prediction
-    features = df.columns.drop(['Close', "Adj Close"])
-    X = df[features]
-
-    # Normalize the data
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    scaled_data = scaler.fit_transform(X)
-
-    # Prepare the data for the LSTM model
-    x_data, y_data = [], []
-
-    for i in range(sequence_length, len(scaled_data)):
-        x_data.append(scaled_data[i - sequence_length:i])
-        y_data.append(df['Close'].iloc[i])
-
-    x_data, y_data = np.array(x_data), np.array(y_data).reshape(-1, 1)
-
-    # Normalize the target variable separately
-    target_scaler = MinMaxScaler(feature_range=(0, 1))
-    y_data = target_scaler.fit_transform(y_data)
-
-    # Split the data into training and testing sets
-    train_size = len(x_data) - test_size
-    x_train, x_test = x_data[:train_size], x_data[train_size:]
-    y_train, y_test = y_data[:train_size], y_data[train_size:]
-
-    # Calculate number of units based on data size (example heuristic)
-    num_units = int(np.sqrt(len(x_train[0])))
-
-    # Build the LSTM model
-    model = Sequential()
-    model.add(LSTM(units=num_units, return_sequences=True, input_shape=(x_train.shape[1], x_train.shape[2])))
-    #model.add(Dropout(0.2))
-    model.add(LSTM(units=num_units, return_sequences=False))
-    #model.add(Dropout(0.2))
-    model.add(Dense(units=num_units // 2, activation='relu'))
-    model.add(Dense(units=1))
-
-    # Compile the model
-    model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
-
-    # Train the model
-    history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_data=(x_test, y_test))
-
-    # Predict the stock prices
-    predictions = model.predict(x_test)
-    predictions = target_scaler.inverse_transform(predictions)
-
-    # Calculate error metrics
-    mse = mean_squared_error(target_scaler.inverse_transform(y_test), predictions)
-    mae = mean_absolute_error(target_scaler.inverse_transform(y_test), predictions)
-
-    print(f'Mean Squared Error: {mse}')
-    print(f'Mean Absolute Error: {mae}')
-
-    # Prepare the validation data for plotting
-    train = df[['Close']].iloc[:train_size + sequence_length]
-    valid = df[['Close']].iloc[train_size + sequence_length:]
-
-    valid['Predictions'] = np.nan
-    valid['Predictions'].iloc[:len(predictions)] = predictions.reshape(-1)
-
-    modelname = "LSTM"
-    filename = f"../data/plots/{modelname}/{underlyingname}.png"
-
-    # Create the directory if it does not exist
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-
-    # Plot the results
-    plt.figure(figsize=(16, 8))
-    plt.title(f'Model: {modelname} Underlying {underlyingname}')
-    plt.xlabel('Date')
-    plt.ylabel('Close Price USD ($)')
-    plt.plot(train.index, train['Close'], label='Train')
-    plt.plot(valid.index, valid['Close'], label='Validation')
-    plt.plot(valid.index, valid['Predictions'], label='Predictions')
-    plt.legend(['Train', 'Val', 'Predictions'], loc='lower right')
-    plt.text(valid.index[-1], valid['Predictions'].iloc[-1], f'MSE: {mse:.2f}\nMAE: {mae:.2f}',
-             fontsize=12, verticalalignment='bottom')
-    plt.savefig(filename)
-    plt.show()
-
-    return mse, mae
+# def lstm_model_predict(
+#         df,
+#         underlyingname,
+#         sequence_length=40,
+#         test_size=40,
+#         batch_size=32,
+#         epochs=50
+# ):
+#     # Use all features except 'Close' and Adj Close for prediction
+#     features = df.columns.drop(['Close', "Adj Close"])
+#     X = df[features]
+#
+#     # Normalize the data
+#     scaler = MinMaxScaler(feature_range=(0, 1))
+#     scaled_data = scaler.fit_transform(X)
+#
+#     # Prepare the data for the LSTM model
+#     x_data, y_data = [], []
+#
+#     for i in range(sequence_length, len(scaled_data)):
+#         x_data.append(scaled_data[i - sequence_length:i])
+#         y_data.append(df['Close'].iloc[i])
+#
+#     x_data, y_data = np.array(x_data), np.array(y_data).reshape(-1, 1)
+#
+#     # Normalize the target variable separately
+#     target_scaler = MinMaxScaler(feature_range=(0, 1))
+#     y_data = target_scaler.fit_transform(y_data)
+#
+#     # Split the data into training and testing sets
+#     train_size = len(x_data) - test_size
+#     x_train, x_test = x_data[:train_size], x_data[train_size:]
+#     y_train, y_test = y_data[:train_size], y_data[train_size:]
+#
+#     # Calculate number of units based on data size (example heuristic)
+#     num_units = int(np.sqrt(len(x_train[0])))
+#
+#     # Build the LSTM model
+#     model = Sequential()
+#     model.add(LSTM(units=num_units, return_sequences=True, input_shape=(x_train.shape[1], x_train.shape[2])))
+#     #model.add(Dropout(0.2))
+#     model.add(LSTM(units=num_units, return_sequences=False))
+#     #model.add(Dropout(0.2))
+#     model.add(Dense(units=num_units // 2, activation='relu'))
+#     model.add(Dense(units=1))
+#
+#     # Compile the model
+#     model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
+#
+#     # Train the model
+#     history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_data=(x_test, y_test))
+#
+#     # Predict the stock prices
+#     predictions = model.predict(x_test)
+#     predictions = target_scaler.inverse_transform(predictions)
+#
+#     # Calculate error metrics
+#     mse = mean_squared_error(target_scaler.inverse_transform(y_test), predictions)
+#     mae = mean_absolute_error(target_scaler.inverse_transform(y_test), predictions)
+#
+#     print(f'Mean Squared Error: {mse}')
+#     print(f'Mean Absolute Error: {mae}')
+#
+#     # Prepare the validation data for plotting
+#     train = df[['Close']].iloc[:train_size + sequence_length]
+#     valid = df[['Close']].iloc[train_size + sequence_length:]
+#
+#     valid['Predictions'] = np.nan
+#     valid['Predictions'].iloc[:len(predictions)] = predictions.reshape(-1)
+#
+#     modelname = "LSTM"
+#     filename = f"../data/plots/{modelname}/{underlyingname}.png"
+#
+#     # Create the directory if it does not exist
+#     os.makedirs(os.path.dirname(filename), exist_ok=True)
+#
+#     # Plot the results
+#     plt.figure(figsize=(16, 8))
+#     plt.title(f'Model: {modelname} Underlying {underlyingname}')
+#     plt.xlabel('Date')
+#     plt.ylabel('Close Price USD ($)')
+#     plt.plot(train.index, train['Close'], label='Train')
+#     plt.plot(valid.index, valid['Close'], label='Validation')
+#     plt.plot(valid.index, valid['Predictions'], label='Predictions')
+#     plt.legend(['Train', 'Val', 'Predictions'], loc='lower right')
+#     plt.text(valid.index[-1], valid['Predictions'].iloc[-1], f'MSE: {mse:.2f}\nMAE: {mae:.2f}',
+#              fontsize=12, verticalalignment='bottom')
+#     plt.savefig(filename)
+#     plt.show()
+#
+#     return mse, mae
 
 def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
     # 'High', 'Low', 'Close', "Adj Close" are unknown at forecasting
@@ -130,7 +130,19 @@ def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
     est.fit(X_train, y_train)
 
     # predict
-    predictions = est.predict(X_test)
+    # predictions = est.predict(X_test)
+
+    predictions = []
+
+    for index, row in X_test.iterrows():
+        # prediction
+        current_row = row.values.reshape(1, -1)
+        prediction = est.predict(current_row)[0]
+        predictions.append(prediction)
+
+        # adjust technical indicators
+
+        pass
 
     # Calculate error metrics
     mse = mean_squared_error(y_test, predictions)
@@ -191,21 +203,21 @@ if __name__ == '__main__':
         df = get_historical_data(ticker, start_date, end_date)
         df = add_technical_indicators(df)
 
-        # LSTM Model
+        ## LSTM Model
         # mse, mae = lstm_model_predict(df, underlyingname=ticker)
         # results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': ['LSTM'], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
 
-        # HistGradientBoostingRegressor
-        est = HistGradientBoostingRegressor(random_state=42)
-        modelname = "HistGradientBoostingRegressor"
-        mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
-        results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
-
-        # RandomForestRegressor
-        est = RandomForestRegressor(random_state=42, n_jobs=-1)
-        modelname = "RandomForestRegressor"
-        mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
-        results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
+        # # HistGradientBoostingRegressor
+        # est = HistGradientBoostingRegressor(random_state=42)
+        # modelname = "HistGradientBoostingRegressor"
+        # mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
+        # results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
+        #
+        # # RandomForestRegressor
+        # est = RandomForestRegressor(random_state=42, n_jobs=-1)
+        # modelname = "RandomForestRegressor"
+        # mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
+        # results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
 
         # LinearRegression
         est = LinearRegression(n_jobs=-1)
