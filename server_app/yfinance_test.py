@@ -3,18 +3,17 @@ import yfinance as yf
 import pandas as pd
 import ta
 import numpy as np
-import tensorflow as tf
 import random
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-from tensorflow.keras.optimizers import Adam
 import matplotlib.pyplot as plt
 from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from data.config import *
 from sklearn.linear_model import LinearRegression
+
+# Set display options to show all rows and columns
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
 
 def get_historical_data(ticker, start_date, end_date):
     df = yf.download(ticker, start=start_date, end=end_date)
@@ -23,35 +22,78 @@ def get_historical_data(ticker, start_date, end_date):
 def add_technical_indicators(df: pd.DataFrame):
     return ta.add_all_ta_features(df, open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
 
-
-def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
-    # 'High', 'Low', 'Close', "Adj Close" are unknown at forecasting
+def data_preprocessing_train_test_split(df: pd.DataFrame, test_size: int):
     # 'others_cr' seems to represent more or less the Close Price
+    # "trend_sma_fast" sometimes gets nan -> ignore this
+    # "trend_sma_slow" sometimes gets nan -> ignore this
     # "Close" is predicted
-    features = df.columns.drop(['High', 'Low', 'Close', "Adj Close", "others_cr"])
+    features = df.columns.drop(['Close', "Adj Close", "others_cr", 'trend_sma_fast', 'trend_sma_slow'])
     X = df[features]
     y = df['Close']
 
     # Train Test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, shuffle=False)
 
-    # train
+    return X_train, X_test, y_train, y_test
+
+def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
+    X_train, X_test, y_train, y_test = data_preprocessing_train_test_split(df, test_size)
+
+    # train model
     est.fit(X_train, y_train)
 
-    # predict
-    # predictions = est.predict(X_test)
+    # set the X_test dataframe values to 0. The values must be predicted and calculated based on the previous value
+    X_test.iloc[:, :] = 0
 
+    # predict
     predictions = []
+    mean_volumn_last_10_days = X_train['Volume'].iloc[-10:].mean()
+    last_index = X_test.index[-1]
+
+    # to predict the first day of test data we need the values from the last train day
+    # for the technical analysis we need to set Open, High, Low, Close and Volume
+    X_test.at[X_test.index[0], 'Open'] = X_train['Open'].iloc[-1]
+    X_test.at[X_test.index[0], 'High'] = X_train['Open'].iloc[-1]
+    X_test.at[X_test.index[0], 'Low'] = X_train['Open'].iloc[-1]
+    X_test.at[X_test.index[0], 'Close'] = X_train['Open'].iloc[-1]
+    X_test.at[X_test.index[0], 'Volume'] = X_train['Volume'].iloc[-1]
 
     for index, row in X_test.iterrows():
+        # ensure we go not out of bounds
+        if index == last_index:
+            break
+
+        # merge train and test data as base for the technical indicators
+        temp_df = pd.concat([X_train, df["Close"][:-test_size]], axis=1)
+        temp_df = pd.concat([temp_df, X_test[:index]], axis=0)
+        temp_df = temp_df[["Open", "High", "Low", "Close", "Volume"]]
+
+        # calculate technical indicators
+        temp_df = add_technical_indicators(temp_df)
+
+        # ensure drop not needed columns from the temp dataframe
+        temp_df = temp_df[X_train.columns]
+
         # prediction
-        current_row = row.values.reshape(1, -1)
-        prediction = est.predict(current_row)[0]
+        current_row = temp_df.loc[index].to_frame().T
+        prediction = est.predict(current_row)
         predictions.append(prediction)
 
-        # adjust technical indicators
+        # find next index
+        next_index = X_test.index[X_test.index.get_loc(index) + 1]
 
-        pass
+        # set predicted close price as open on the next index (=next trading day)
+        # todo High Low and volume predcitions in own models just go with fantasy values for now
+        X_test.at[next_index, 'Open'] = prediction
+        X_test.at[next_index, 'High'] = prediction * 1.05
+        X_test.at[next_index, 'Low'] = prediction * 0.95
+        X_test.at[next_index, 'Volume'] = mean_volumn_last_10_days
+
+    # todo last prediction should be handled diffrent but just test this
+    predictions.append(prediction)
+
+    # Convert predictions list to a NumPy array
+    predictions = np.array(predictions).flatten()
 
     # Calculate error metrics
     mse = mean_squared_error(y_test, predictions)
@@ -93,7 +135,7 @@ def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
 def set_seeds(seed=42):
     np.random.seed(seed)
     random.seed(seed)
-    tf.random.set_seed(seed)
+    # tf.random.set_seed(seed)
 
 if __name__ == '__main__':
     ticker = 'MSFT'
@@ -110,7 +152,7 @@ if __name__ == '__main__':
         print(f"Ticker: {ticker}")
 
         df = get_historical_data(ticker, start_date, end_date)
-        df = add_technical_indicators(df)
+        df = add_technical_indicators(df.copy())
 
         # # HistGradientBoostingRegressor
         # est = HistGradientBoostingRegressor(random_state=42)
@@ -118,18 +160,17 @@ if __name__ == '__main__':
         # mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
         # results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
         #
-        # # RandomForestRegressor
-        # est = RandomForestRegressor(random_state=42, n_jobs=-1)
-        # modelname = "RandomForestRegressor"
-        # mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
-        # results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
-
-        # LinearRegression
-        est = LinearRegression(n_jobs=-1)
-        modelname = "LinearRegression"
+        # RandomForestRegressor
+        est = RandomForestRegressor(random_state=42, n_jobs=-1)
+        modelname = "RandomForestRegressor"
         mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
         results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
 
+        # # LinearRegression
+        # est = LinearRegression(n_jobs=-1)
+        # modelname = "LinearRegression"
+        # mse, mae = sklearn_model_predict(est, df, test_size=50, underlyingname=ticker, modelname=modelname)
+        # results_df = pd.concat([results_df, pd.DataFrame({'Ticker': [ticker], 'Model': [modelname], 'MSE': [mse], 'MAE': [mae]})], ignore_index=True)
 
         # Save results to disk
         results_filename = "../data/model_performance_results.csv"
