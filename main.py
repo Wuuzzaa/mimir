@@ -3,7 +3,7 @@ import os
 from src.api_manager import APIManager
 from src.jsons_to_sql_db import create_database, process_json_files
 from src.option_scrapper import OptionScrapper
-from data.config import *
+from config import *
 import threading
 import time
 
