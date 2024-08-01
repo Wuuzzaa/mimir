@@ -85,6 +85,7 @@ def sklearn_model_predict(est, df, test_size, underlyingname, modelname):
         # set predicted close price as open on the next index (=next trading day)
         # todo High Low and volume predcitions in own models just go with fantasy values for now
         X_test.at[next_index, 'Open'] = prediction
+        X_test.at[next_index, 'Close'] = prediction
         X_test.at[next_index, 'High'] = prediction * 1.05
         X_test.at[next_index, 'Low'] = prediction * 0.95
         X_test.at[next_index, 'Volume'] = mean_volumn_last_10_days
