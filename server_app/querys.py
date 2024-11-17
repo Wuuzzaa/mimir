@@ -1,6 +1,6 @@
 import sqlite3
 import logging
-from data.config import *
+from config import *
 
 from server_app.option_calculation import put_spread_calculations
 

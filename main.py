@@ -1,9 +1,8 @@
 import os
-
 from src.api_manager import APIManager
 from src.jsons_to_sql_db import create_database, process_json_files
 from src.option_scrapper import OptionScrapper
-from data.config import *
+from config import *
 import threading
 import time
 
@@ -22,7 +21,6 @@ def get_not_scraped_symbols():
     return symbols
 
 
-
 def json_to_sqlite(json_directory, db_name):
     create_database(db_name)
     process_json_files(json_directory, db_name)
@@ -35,7 +33,6 @@ def worker(symbol, api_manager):
         option_scrapper.scrape_options(symbol)
     except Exception as e:
         print(f"Error occurred for symbol {symbol}: Exception Type: {type(e).__name__}: {e}")
-
 
 
 if __name__ == '__main__':

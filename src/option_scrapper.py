@@ -4,11 +4,12 @@ import os
 import requests
 import urllib3
 
-from data.config import *
+from config import *
 from src.api_manager import APIManager
 
 # always add verify=False for insecure requests and ignore the warning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 class OptionScrapper:
     def __init__(self, api_manager: APIManager):
