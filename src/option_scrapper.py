@@ -4,7 +4,7 @@ import os
 import requests
 import urllib3
 
-from data.config import *
+from config import *
 from src.api_manager import APIManager
 
 # always add verify=False for insecure requests and ignore the warning

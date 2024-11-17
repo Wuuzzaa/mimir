@@ -22,7 +22,6 @@ def get_not_scraped_symbols():
     return symbols
 
 
-
 def json_to_sqlite(json_directory, db_name):
     create_database(db_name)
     process_json_files(json_directory, db_name)
@@ -35,7 +34,6 @@ def worker(symbol, api_manager):
         option_scrapper.scrape_options(symbol)
     except Exception as e:
         print(f"Error occurred for symbol {symbol}: Exception Type: {type(e).__name__}: {e}")
-
 
 
 if __name__ == '__main__':
@@ -58,4 +56,4 @@ if __name__ == '__main__':
     execution_time = end_time - start_time
     print(f"Execution time for {num_workers} worker threads: {execution_time} seconds")
 
-    json_to_sqlite(json_directory=PATH_JSON_FOLDER, db_name=f"{DATABASE_FOLDER}/{DATABASE_FILE_NAME}")
+    json_to_sqlite(json_directory=PATH_JSON_FOLDER, db_name=f"{DATABASE_FILE_NAME}")
